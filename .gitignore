@@ -24,3 +24,9 @@ web_custom_versions/
 openapi.yaml
 filtered-openapi.yaml
 uv.lock
+
+# 虚拟环境
+comfyui_clean/
+# 临时文件
+*.tmp
+*.temp
