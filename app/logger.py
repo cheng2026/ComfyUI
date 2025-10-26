@@ -14,7 +14,10 @@ class LogInterceptor(io.TextIOWrapper):
     def __init__(self, stream,  *args, **kwargs):
         buffer = stream.buffer
         encoding = stream.encoding
-        super().__init__(buffer, *args, **kwargs, encoding=encoding, line_buffering=stream.line_buffering)
+        # Force UTF-8 encoding, fallback to 'replace' error handling for problematic characters
+        if encoding and encoding.lower() not in ['utf-8', 'utf8']:
+            encoding = 'utf-8'
+        super().__init__(buffer, *args, **kwargs, encoding=encoding or 'utf-8', line_buffering=stream.line_buffering, errors='replace')
         self._lock = threading.Lock()
         self._flush_callbacks = []
         self._logs_since_flush = []
@@ -26,10 +29,31 @@ class LogInterceptor(io.TextIOWrapper):
 
             # Simple handling for cr to overwrite the last output if it isnt a full line
             # else logs just get full of progress messages
-            if isinstance(data, str) and data.startswith("\r") and not logs[-1]["m"].endswith("\n"):
+            if isinstance(data, str) and data.startswith("\r") and logs and not logs[-1]["m"].endswith("\n"):
                 logs.pop()
             logs.append(entry)
-        super().write(data)
+
+        # Handle encoding issues more robustly
+        try:
+            # First, clean the data by removing problematic characters
+            if isinstance(data, str):
+                # Replace emoji and Unicode characters that GBK can't handle
+                cleaned_data = data.encode('utf-8', errors='ignore')
+                cleaned_data = cleaned_data.decode('utf-8', errors='ignore')
+                super().write(cleaned_data)
+            else:
+                super().write(data)
+        except (UnicodeEncodeError, UnicodeDecodeError, OSError):
+            # If encoding still fails, fall back to ASCII-safe version
+            try:
+                if isinstance(data, str):
+                    # Remove all non-ASCII characters as last resort
+                    ascii_safe_bytes = data.encode('ascii', errors='ignore')
+                    ascii_safe = ascii_safe_bytes.decode('ascii')
+                    if ascii_safe:  # Only write if there's something left
+                        super().write(ascii_safe)
+            except Exception:
+                pass  # Silently skip if all else fails
 
     def flush(self):
         super().flush()

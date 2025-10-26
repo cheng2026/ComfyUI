@@ -184,7 +184,12 @@ def get_torch_device():
         elif is_mlu():
             return torch.device("mlu", torch.mlu.current_device())
         else:
-            return torch.device(torch.cuda.current_device())
+            # 检查 CUDA 是否可用，否则 fallback 到 CPU
+            if torch.cuda.is_available():
+                return torch.device(torch.cuda.current_device())
+            else:
+                print("WARNING: CUDA not available, automatically switched to CPU mode")
+                return torch.device("cpu")
 
 def get_total_memory(dev=None, torch_total_too=False):
     global directml_enabled

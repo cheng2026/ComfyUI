@@ -2110,6 +2110,9 @@ def get_module_name(module_path: str) -> str:
 
 async def load_custom_node(module_path: str, ignore=set(), module_parent="custom_nodes") -> bool:
     module_name = get_module_name(module_path)
+    # Initialize sys_module_name with a default value to prevent UnboundLocalError
+    sys_module_name = module_path.replace(".", "_x_")
+    
     if os.path.isfile(module_path):
         sp = os.path.splitext(module_path)
         module_name = sp[0]
