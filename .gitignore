@@ -7,6 +7,9 @@ __pycache__/
 /temp/
 /custom_nodes/
 !custom_nodes/example_node.py.example
+
+# Ignore comfly-api (it has its own Git repository)
+/custom_nodes/comfly-api/
 extra_model_paths.yaml
 /.vs
 .vscode/
