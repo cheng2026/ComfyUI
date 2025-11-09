@@ -4,6 +4,9 @@ from folder_paths import folder_names_and_paths, get_directory_by_type
 from api_server.services.terminal_service import TerminalService
 import app.logger
 import os
+import nodes
+import asyncio
+import logging
 
 class InternalRoutes:
     '''
@@ -64,6 +67,33 @@ class InternalRoutes:
             )
             return web.json_response([entry.name for entry in sorted_files], status=200)
 
+        @self.routes.post('/restart')
+        async def restart(request):
+            """重新加载所有自定义节点和扩展节点"""
+            try:
+                logging.info("正在重新加载节点...")
+                # 重新加载所有节点（自定义节点和内置扩展节点）
+                import_failed = await nodes.init_extra_nodes(init_custom_nodes=True, init_api_nodes=True)
+                
+                if import_failed:
+                    logging.warning(f"部分节点加载失败: {import_failed}")
+                    return web.json_response({
+                        "success": True, 
+                        "message": "重启完成，但部分节点加载失败",
+                        "failed_nodes": import_failed
+                    })
+                else:
+                    logging.info("节点重新加载完成")
+                    return web.json_response({
+                        "success": True, 
+                        "message": "所有节点重新加载完成"
+                    })
+            except Exception as e:
+                logging.error(f"重启过程中出错: {e}")
+                return web.json_response({
+                    "success": False, 
+                    "error": str(e)
+                }, status=500)
 
     def get_app(self):
         if self._app is None:
