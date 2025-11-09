@@ -1,0 +1,283 @@
+================================================================================
+                   ComfyUI CPU-Only Mode Configuration
+================================================================================
+
+All startup scripts have been configured to use CPU-only mode.
+
+================================================================================
+CPU-ONLY MODE SETUP
+================================================================================
+
+The following parameter has been added to all startup scripts:
+
+    --cpu    (Force CPU-only computation)
+
+This parameter ensures ComfyUI will NOT:
+  - Detect CUDA/GPU devices
+  - Attempt to load GPU models locally
+  - Switch to GPU mode automatically
+
+ComfyUI will use CPU exclusively for local operations.
+
+================================================================================
+WHAT CPU MODE IS FOR
+================================================================================
+
+CPU mode is typically used for:
+
+1. **Using Official Model APIs**
+   - OpenAI API (GPT, DALL-E, etc.)
+   - Anthropic Claude API
+   - Other cloud-based AI service APIs
+   - These run on remote servers, not locally
+
+2. **Testing and Debugging**
+   - Testing workflows without GPU requirements
+   - Integration testing with API services
+   - Debugging node configurations
+
+3. **API-First Architecture**
+   - Local CPU handles workflow coordination
+   - Remote API services handle heavy computation
+   - Network bandwidth is the limiting factor, not GPU
+
+================================================================================
+WHY YOU MIGHT USE CPU MODE
+================================================================================
+
+NOT for local GPU-intensive tasks. Use it when:
+
+  ✓ You're using remote APIs (OpenAI, etc.) - GPU locally doesn't matter
+  ✓ You're testing workflows - API calls run on remote servers
+  ✓ You want to avoid GPU memory overhead - for API coordination only
+  ✓ You're running on a machine without a GPU - and using APIs
+
+NOT for:
+
+  ✗ Running large local models without GPU
+  ✗ Image generation with local diffusion models
+  ✗ Performance-critical local inference
+
+
+================================================================================
+STARTUP SCRIPTS WITH CPU MODE
+================================================================================
+
+1. run_comfyui.bat
+   Command: main.py --listen 127.0.0.1 --port 8188 --cpu
+
+2. run_comfyui_cn.bat
+   Command: main.py --listen 127.0.0.1 --port 8188 --cpu
+
+3. run_comfyui.ps1
+   Command: main.py --listen 127.0.0.1 --port $Port --cpu
+
+
+================================================================================
+ENVIRONMENT VARIABLES (Optional, for extra assurance)
+================================================================================
+
+If you want additional assurance that GPU is disabled, set these environment
+variables before starting ComfyUI:
+
+CUDA_VISIBLE_DEVICES=""
+  Hides all CUDA devices from PyTorch
+
+FORCE_CPU=1
+  Forces CPU mode (if supported by the application)
+
+
+Setting environment variables:
+
+Command Prompt:
+  set CUDA_VISIBLE_DEVICES=
+  set FORCE_CPU=1
+  run_comfyui.bat
+
+PowerShell:
+  $env:CUDA_VISIBLE_DEVICES = ""
+  $env:FORCE_CPU = "1"
+  .\run_comfyui.ps1
+
+
+================================================================================
+VERIFY CPU-ONLY MODE
+================================================================================
+
+When ComfyUI starts, look for these messages in the console:
+
+Expected output (CPU mode):
+  Device: cpu
+  pytorch version: 2.x.x+cpu
+
+NOT CPU mode (will NOT appear):
+  CUDA available: True
+  Device: cuda
+
+If you see "Device: cpu", then CPU-only mode is working correctly.
+
+
+================================================================================
+PERFORMANCE AND SPEED
+================================================================================
+
+Performance depends on WHAT you're doing:
+
+WITH REMOTE APIs (OpenAI, etc.):
+  - Speed depends on API response time, NOT local CPU
+  - Local CPU is only used for workflow coordination
+  - Network latency is the primary factor
+  - GPU locally makes NO difference
+
+WITH LOCAL MODELS:
+  - NOT recommended in CPU-only mode
+  - Local inference would be very slow
+  - But this is NOT the intended use case for CPU mode
+
+CPU mode is optimized for API-first workflows where computation
+happens on remote servers, not locally.
+
+
+================================================================================
+TROUBLESHOOTING CPU-ONLY MODE
+================================================================================
+
+If ComfyUI still tries to use GPU:
+
+1. Check console output for error messages
+2. Verify --cpu flag is in your startup command
+3. Set CUDA_VISIBLE_DEVICES="" environment variable
+4. Manually specify CPU in requirements (may need reinstall)
+
+Manual PyTorch CPU reinstall:
+  pip uninstall torch -y
+  pip install torch --index-url https://download.pytorch.org/whl/cpu
+
+
+================================================================================
+MANUAL STARTUP WITH CPU MODE
+================================================================================
+
+To manually start ComfyUI in CPU mode:
+
+1. Open PowerShell or Command Prompt
+2. Navigate to: cd E:\ComfyUI
+3. Activate virtual environment: comfyui_clean\Scripts\activate.bat
+4. Run with CPU flag: python main.py --listen 127.0.0.1 --port 8188 --cpu
+
+
+================================================================================
+USING WITH OFFICIAL APIS
+================================================================================
+
+Example API nodes you might use with CPU mode:
+
+- OpenAI API nodes (DALL-E, GPT, etc.)
+- Anthropic Claude API nodes
+- Other cloud service API integrations
+
+These nodes make HTTP requests to remote servers.
+Local CPU mode simply coordinates these API calls.
+
+No GPU needed locally because computation happens on API servers.
+
+
+================================================================================
+DISABLING CUDA DETECTION
+================================================================================
+
+To completely disable CUDA detection in ComfyUI, you can modify environment:
+
+Method 1: Before running startup script
+  Windows Command Prompt:
+    set CUDA_DEVICE_ORDER=PCI_BUS_ID
+    set CUDA_VISIBLE_DEVICES=
+    run_comfyui.bat
+
+  PowerShell:
+    $env:CUDA_DEVICE_ORDER = "PCI_BUS_ID"
+    $env:CUDA_VISIBLE_DEVICES = ""
+    .\run_comfyui.ps1
+
+
+================================================================================
+ALL STARTUP OPTIONS
+================================================================================
+
+Other useful ComfyUI command-line options:
+
+  --cpu                        # CPU-only mode (current setting)
+  --listen 0.0.0.0            # Allow network access
+  --listen 127.0.0.1          # Local only (current setting)
+  --port 8188                 # Server port (customizable)
+  --preview-method latent     # Preview method
+  --auto-launch               # Auto-open browser
+  --normalvram                # Use normal VRAM (GPU)
+  --lowvram                   # Use less VRAM (GPU)
+
+
+Example combinations:
+  python main.py --listen 127.0.0.1 --port 8188 --cpu
+  python main.py --listen 0.0.0.0 --port 8188 --cpu --auto-launch
+
+
+================================================================================
+FAQ: CPU-ONLY MODE
+================================================================================
+
+Q: Is CPU mode slow?
+A: Depends on what you're doing. With remote APIs, speed depends on API
+   response time, not local CPU. For local model inference, yes it's slow.
+
+Q: Can I use this with OpenAI API?
+A: Yes, CPU mode is perfect for API-based workflows.
+
+Q: Can I use this with local models?
+A: Technically yes, but not recommended. CPU mode is for API coordination.
+
+Q: Will the --cpu flag cause errors?
+A: No, it's a standard ComfyUI option and will not cause any errors.
+
+Q: Can I switch back to GPU mode?
+A: Yes, remove the --cpu flag from the startup script and restart.
+
+Q: How do I verify it's using CPU?
+A: Look for "Device: cpu" in the startup messages. Check console output.
+
+Q: Why use CPU mode if not for local inference?
+A: To avoid GPU detection overhead when using remote APIs, or to run
+   on systems without GPU but with API access.
+
+Q: Can I use GPU again later?
+A: Yes, just use run_comfyui.bat without modifications or remove --cpu flag.
+
+
+================================================================================
+SUMMARY
+================================================================================
+
+CPU-only mode is now ENABLED by default on all startup scripts.
+
+Intended use cases:
+  ✓ Remote API workflows (OpenAI, etc.)
+  ✓ API-first architectures
+  ✓ Workflow coordination without local GPU
+  ✓ Testing and debugging
+
+Not intended for:
+  ✗ Local model deployment without GPU
+  ✗ Performance-critical local inference
+
+To use CPU-only mode:
+  1. Double-click run_comfyui.bat
+  2. OR run .\run_comfyui.ps1 in PowerShell
+  3. OR run run_comfyui_cn.bat with Chinese UI
+
+ComfyUI will start in CPU-only mode automatically.
+
+No CUDA detection or GPU switching will occur.
+
+
+================================================================================
+Last Updated: 2025-10-25
+================================================================================

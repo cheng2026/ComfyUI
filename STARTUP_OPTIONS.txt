@@ -1,0 +1,386 @@
+================================================================================
+                     ComfyUI Startup Options Guide
+================================================================================
+
+This file explains all available methods to start ComfyUI and their options.
+
+================================================================================
+QUICK REFERENCE TABLE
+================================================================================
+
+Method      | File                | Ease | Speed | Error Handling | Encoding Safe
+------------|-------------------|------|-------|----------------|---------------
+Batch (v3)  | run_comfyui.bat   | Easy | Fast  | Good          | Yes (ANSI)
+Batch (CN)  | run_comfyui_cn.bat| Easy | Fast  | Good          | Yes (ANSI)
+PowerShell  | run_comfyui.ps1   | Med  | Fast  | Better        | Yes (UTF-8)
+Manual      | Command line      | Hard | Fast  | None          | Depends
+Python      | Python script     | Hard | Fast  | None          | Yes
+
+
+================================================================================
+OPTION 1: SIMPLE BATCH FILE (EASIEST - RECOMMENDED FOR FIRST TIME)
+================================================================================
+
+File: run_comfyui.bat
+
+How to use:
+  1. Open Windows Explorer
+  2. Go to: E:\ComfyUI
+  3. Double-click: run_comfyui.bat
+  4. Wait for startup
+  5. Browser opens to: http://127.0.0.1:8188
+
+What it does:
+  - Checks for Python venv
+  - Updates pip and dependencies
+  - Starts ComfyUI server
+  - Shows console output
+
+What NOT to do:
+  - Don't close the console window while using ComfyUI
+  - Don't modify paths without knowing what you're doing
+
+To stop: Press Ctrl+C in console
+
+
+================================================================================
+OPTION 2: BATCH FILE WITH CHINESE (SAME AS OPTION 1, BUT WITH CHINESE TITLE)
+================================================================================
+
+File: run_comfyui_cn.bat
+
+Same as run_comfyui.bat but with a Chinese title in the console.
+
+Usage: Same as Option 1
+
+
+================================================================================
+OPTION 3: POWERSHELL SCRIPT (RECOMMENDED FOR ADVANCED USERS)
+================================================================================
+
+File: run_comfyui.ps1
+
+Advantages:
+  - Better error handling
+  - Supports UTF-8 properly
+  - Can pass command-line options
+  - Color-coded output
+  - More reliable
+
+How to use:
+  1. Right-click PowerShell
+  2. Select: Run as Administrator
+  3. Run these commands:
+  
+     Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force
+     cd E:\ComfyUI
+     .\run_comfyui.ps1
+
+Basic Command-Line Options:
+
+  Start with default settings:
+    .\run_comfyui.ps1
+
+  Skip dependency updates (faster for repeated startups):
+    .\run_comfyui.ps1 -SkipDependencies
+
+  Use different port:
+    .\run_comfyui.ps1 -Port 8189
+
+  Combine options:
+    .\run_comfyui.ps1 -SkipDependencies -Port 8189
+
+Examples:
+
+  First startup (update dependencies):
+    .\run_comfyui.ps1
+
+  Subsequent startups (skip updates for speed):
+    .\run_comfyui.ps1 -SkipDependencies
+
+  If port 8188 is in use:
+    .\run_comfyui.ps1 -Port 8189
+
+To stop: Press Ctrl+C in PowerShell window
+
+
+================================================================================
+OPTION 4: MANUAL COMMAND LINE (ADVANCED - FOR DEBUGGING)
+================================================================================
+
+Steps:
+  1. Open Command Prompt or PowerShell
+  2. Navigate to ComfyUI directory:
+     cd E:\ComfyUI
+
+  3. Activate virtual environment:
+     comfyui_clean\Scripts\activate.bat
+
+  4. Update dependencies (optional):
+     pip install --upgrade pip setuptools wheel
+     pip install -r requirements.txt
+
+  5. Start ComfyUI:
+     python main.py --listen 127.0.0.1 --port 8188
+
+Useful options for main.py:
+  --listen 127.0.0.1     # Only local connections
+  --listen 0.0.0.0       # Allow remote connections
+  --port 8188            # Port number (default 8188)
+  --preview-method latent # Preview method
+  --auto-launch          # Auto-open browser
+
+Examples:
+
+  Local only (default):
+    python main.py --listen 127.0.0.1 --port 8188
+
+  Allow network access:
+    python main.py --listen 0.0.0.0 --port 8188
+
+  Different port:
+    python main.py --listen 127.0.0.1 --port 8189
+
+  Auto-launch browser:
+    python main.py --listen 127.0.0.1 --port 8188 --auto-launch
+
+To stop: Press Ctrl+C
+
+
+================================================================================
+OPTION 5: PYTHON SCRIPT (PROGRAMMATIC - ADVANCED)
+================================================================================
+
+For advanced users who want to automate or extend ComfyUI startup.
+
+Create a file: start_comfyui.py
+
+Example content:
+---
+import sys
+import os
+import subprocess
+
+def start_comfyui(port=8188, venv_path="comfyui_clean"):
+    python_exe = os.path.join(venv_path, "Scripts", "python.exe")
+    
+    cmd = [
+        python_exe,
+        "main.py",
+        "--listen", "127.0.0.1",
+        "--port", str(port)
+    ]
+    
+    subprocess.run(cmd)
+
+if __name__ == "__main__":
+    port = sys.argv[1] if len(sys.argv) > 1 else 8188
+    start_comfyui(int(port))
+---
+
+Usage:
+  python start_comfyui.py        # Default port 8188
+  python start_comfyui.py 8189   # Use port 8189
+
+
+================================================================================
+COMPARISON: WHICH METHOD TO CHOOSE?
+================================================================================
+
+Choose BATCH FILE (run_comfyui.bat) if:
+  - First time using ComfyUI
+  - Want simplest possible startup
+  - Prefer graphical double-click method
+  - Don't need advanced options
+
+Choose POWERSHELL (run_comfyui.ps1) if:
+  - More comfortable with PowerShell
+  - Need different port
+  - Want better error messages
+  - Using repeated startups (can skip dependencies)
+
+Choose MANUAL if:
+  - Debugging issues
+  - Customizing startup options
+  - Running in script/automation
+  - Need fine-grained control
+
+Choose PYTHON SCRIPT if:
+  - Integrating with other Python code
+  - Creating custom startup logic
+  - Building automated systems
+
+
+================================================================================
+TROUBLESHOOTING BY METHOD
+================================================================================
+
+BATCH FILE ISSUES:
+  - "Port already in use": Use PowerShell with -Port option
+  - "Command not recognized": Use PowerShell method instead
+  - "Encoding errors": Use PowerShell method instead
+
+POWERSHELL ISSUES:
+  - "ExecutionPolicy error": Run:
+    Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force
+  - "Command not found": Ensure in ComfyUI directory (cd E:\ComfyUI)
+  - "Port in use": Use different port (-Port 8189)
+
+MANUAL ISSUES:
+  - "python not found": Activate venv first
+  - "ModuleNotFoundError": Install requirements (pip install -r requirements.txt)
+  - "Port in use": Use different port (--port 8189)
+
+
+================================================================================
+DEPENDENCY MANAGEMENT
+================================================================================
+
+Dependencies are stored in: requirements.txt
+
+Manual dependency management:
+
+  Check installed packages:
+    pip list
+
+  Update specific package:
+    pip install --upgrade torch
+
+  Update all packages:
+    pip install --upgrade -r requirements.txt
+
+  Clean install:
+    pip install --no-cache-dir -r requirements.txt
+
+  Check for updates:
+    pip list --outdated
+
+
+================================================================================
+PORT MANAGEMENT
+================================================================================
+
+Default port: 8188
+
+Check if port is in use:
+  netstat -ano | findstr :8188
+
+If port is in use, use different port:
+  Batch: Edit run_comfyui.bat, change 8188 to 8189
+  PowerShell: .\run_comfyui.ps1 -Port 8189
+  Manual: python main.py --listen 127.0.0.1 --port 8189
+
+Access on different port:
+  http://127.0.0.1:8189
+
+
+================================================================================
+ENVIRONMENT VARIABLES
+================================================================================
+
+Optional environment variables:
+
+  PYTHONIOENCODING=utf-8
+    Forces UTF-8 encoding for Python I/O
+    
+  PYTHONUNBUFFERED=1
+    Disables buffering for immediate console output
+    
+  CUDA_VISIBLE_DEVICES=0
+    Specifies which GPU to use
+
+Set before running:
+  PowerShell:
+    $env:PYTHONIOENCODING = 'utf-8'
+    .\run_comfyui.ps1
+  
+  Command Prompt:
+    set PYTHONIOENCODING=utf-8
+    run_comfyui.bat
+
+
+================================================================================
+REMOTE ACCESS
+================================================================================
+
+Default: Only localhost (127.0.0.1)
+
+To allow remote access on network:
+  Manual method:
+    python main.py --listen 0.0.0.0 --port 8188
+  
+  PowerShell: (edit run_comfyui.ps1 and change localhost to 0.0.0.0)
+  
+  Batch: (edit run_comfyui.bat and change localhost to 0.0.0.0)
+
+WARNING: This exposes ComfyUI to your network. Use firewall to restrict access.
+
+
+================================================================================
+LOGGING AND DEBUG OUTPUT
+================================================================================
+
+View full startup logs:
+  startup_error.log           # Error log
+  startup_clean_error.log     # Clean startup errors
+  full_startup.log            # Complete log
+
+In PowerShell, tail logs:
+  Get-Content startup_error.log -Tail 50
+
+Redirect output to file:
+  PowerShell:
+    .\run_comfyui.ps1 2>&1 | Tee-Object -FilePath log.txt
+  
+  Batch: (already redirects to startup_error.log)
+
+
+================================================================================
+Performance Tips
+================================================================================
+
+Faster startup (after first run):
+  Use PowerShell with -SkipDependencies:
+    .\run_comfyui.ps1 -SkipDependencies
+
+Memory optimization:
+  Ensure no other applications use GPU:
+    Close video games, AI tools, etc.
+    Check Task Manager -> Performance -> GPU
+
+Network performance:
+  Use localhost (127.0.0.1) for local use
+  Use 0.0.0.0 only if remote access needed
+
+
+================================================================================
+FAQ
+================================================================================
+
+Q: Why does startup take long the first time?
+A: Dependencies are being installed/updated. Subsequent starts are faster.
+   Use -SkipDependencies in PowerShell to skip on later runs.
+
+Q: Can I close the console while ComfyUI is running?
+A: No, the console window is the server. Closing it stops ComfyUI.
+
+Q: Which startup method is fastest?
+A: PowerShell with -SkipDependencies (after first run).
+
+Q: Can I run on different port?
+A: Yes, use PowerShell -Port option or edit batch file.
+
+Q: Does it work with remote computers?
+A: Yes, use --listen 0.0.0.0 and access from: http://remote-ip:8188
+
+Q: Why am I getting encoding errors?
+A: Use PowerShell method instead of batch file.
+
+Q: How do I update dependencies?
+A: Batch/PS scripts do this automatically. Manually: pip install -r requirements.txt
+
+
+================================================================================
+Last Updated: 2025-10-25
+Version: 3.0
+================================================================================

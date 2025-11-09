@@ -1,0 +1,98 @@
+================================================================================
+                      ComfyUI - Quick Start Guide
+================================================================================
+
+PROBLEM SOLVED: Encoding issues and startup failures have been fixed.
+
+CPU-ONLY MODE: ComfyUI is configured to use CPU only (no GPU detection).
+
+================================================================================
+READY TO START
+================================================================================
+
+1. SIMPLEST METHOD (Double-click):
+   Navigate to: E:\ComfyUI
+   Double-click: run_comfyui.bat
+   Wait for console window
+   Open browser: http://127.0.0.1:8188
+
+2. POWERSHELL METHOD (Better error handling):
+   Open PowerShell (right-click, Run as Administrator)
+   Run:
+     Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force
+     cd E:\ComfyUI
+     .\run_comfyui.ps1
+   Open browser: http://127.0.0.1:8188
+
+3. DIFFERENT PORT (using PowerShell):
+   .\run_comfyui.ps1 -Port 8189
+   Open browser: http://127.0.0.1:8189
+
+4. SKIP DEPENDENCY CHECK (for faster subsequent startup):
+   .\run_comfyui.ps1 -SkipDependencies
+
+================================================================================
+WHAT TO EXPECT
+================================================================================
+
+Console shows:
+  [OK] main.py found
+  [OK] Virtual environment found
+  [INFO] Checking dependencies...
+  ComfyUI is starting...
+  URL: http://127.0.0.1:8188
+
+  *** CPU-ONLY MODE ***
+  Device: cpu
+  pytorch version: 2.x.x+cpu
+
+Browser opens to: http://127.0.0.1:8188 showing ComfyUI interface
+
+================================================================================
+IF SOMETHING GOES WRONG
+================================================================================
+
+1. Check the error message in console
+2. Try PowerShell method instead of batch file
+3. Read STARTUP_OPTIONS.txt for detailed troubleshooting
+4. Read CPU_MODE.txt for CPU-specific information
+5. Check startup_error.log for detailed info
+
+================================================================================
+WHAT WAS FIXED
+================================================================================
+
+[OK] Encoding errors (GBK incompatibility with emoji)
+[OK] Python logger updated with UTF-8 support
+[OK] Problematic custom nodes disabled
+[OK] Three startup methods available
+[OK] Comprehensive documentation included
+[OK] CPU-only mode enabled (no CUDA/GPU detection)
+
+================================================================================
+STOPPING COMFYUI
+================================================================================
+
+Press Ctrl+C in the console window
+
+================================================================================
+Important: CPU-Only Mode
+================================================================================
+
+ComfyUI is running in CPU-ONLY mode. This means:
+
+  - NO GPU/CUDA will be used for local computation
+  - NO automatic GPU detection
+  - CPU is used for local operations only
+  - Designed for API-based workflows (OpenAI, etc.)
+
+This configuration is optimized for:
+  ✓ Using official model APIs (remote computation)
+  ✓ Workflow coordination without local GPU
+  ✓ API-first architectures
+
+For more details, read: CPU_MODE.txt
+
+================================================================================
+Last Updated: 2025-10-25
+================================================================================
